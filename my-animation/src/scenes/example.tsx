@@ -1,8 +1,7 @@
-import {Circle, Layout, makeScene2D} from '@motion-canvas/2d';
+import {Circle, Layout, Line, makeScene2D} from '@motion-canvas/2d';
 import {all, BeatSpring, createRef, Reference, spring, ThreadGenerator} from '@motion-canvas/core';
 
 export default makeScene2D(function* (view) {
-    // Create your animations here
     const TCircle = createRef<Circle>();
     const PCircle = createRef<Circle>();
     const MCircle1 = createRef<Circle>();
@@ -14,8 +13,6 @@ export default makeScene2D(function* (view) {
     const RCircle3 = createRef<Circle>();
     const RCircle4 = createRef<Circle>();
     const RCircle5 = createRef<Circle>();
-
-
 
 
     const circles = [TCircle, PCircle, MCircle1, MCircle2, RCircle1]
@@ -90,6 +87,58 @@ export default makeScene2D(function* (view) {
         </Layout>
     );
 
+    view.add(
+        <>
+            {/*t -> p*/}
+            <Line lineWidth={10} stroke={"#666"} startOffset={20} endOffset={20} radius={80} points={[
+                TCircle().right,
+                () => TCircle().right().addX(80),
+                () => PCircle().left().addX(-80),
+                PCircle().left,
+            ]}></Line>
+            {/*p -> m*/}
+            <Line lineWidth={10} stroke={"#666"} startOffset={20} endOffset={20} radius={800} points={[
+                PCircle().bottom,
+                () => MCircle1().top().addX(40),
+                MCircle1().topRight,
+            ]}></Line>
+            <Line lineWidth={10} stroke={"#666"} startOffset={20} endOffset={20} radius={800} points={[
+                PCircle().bottom,
+                () => MCircle2().top().addX(-40),
+                MCircle2().topLeft,
+            ]}></Line>
+            {/*m1 -> r1,r2*/}
+            <Line lineWidth={10} stroke={"#666"} startOffset={20} endOffset={20} radius={800} points={[
+                MCircle1().left,
+                RCircle1().right,
+            ]}></Line>
+            <Line lineWidth={10} stroke={"#666"} startOffset={20} endOffset={20} radius={800} points={[
+                MCircle1().bottom,
+                () => MCircle1().bottom().addX(40),
+                () => RCircle2().right().addX(40),
+                RCircle2().right,
+            ]}></Line>
+
+            {/*m2 -> r3,r4,r5*/}
+            <Line lineWidth={10} stroke={"#666"} startOffset={20} endOffset={20} radius={1000} points={[
+                MCircle2().left,
+                () => MCircle2().left().addX(-80),
+                () => RCircle3().top().addX(80),
+                RCircle3().top,
+            ]}></Line>
+            <Line lineWidth={10} stroke={"#666"} startOffset={20} endOffset={20} radius={800} points={[
+                MCircle2().bottom,
+                () => MCircle2().bottom().addX(-40),
+                () => RCircle4().left().addX(-40),
+                RCircle4().left,
+            ]}></Line>
+            <Line lineWidth={10} stroke={"#666"} startOffset={20} endOffset={20} radius={800} points={[
+                MCircle2().right,
+                RCircle5().left,
+            ]}></Line>
+        </>
+    )
+
 
     // yield* flicker(myCircle())
 
@@ -102,6 +151,7 @@ export default makeScene2D(function* (view) {
             PCircle().position.x(value);
             PCircle().position.y(value);
         }),
+
         // measurements
         spring(BeatSpring, 0, -225, 1, value => {
             MCircle1().position.x(value);
@@ -113,27 +163,28 @@ export default makeScene2D(function* (view) {
         }),
 
         // records
-        spring(BeatSpring, 0, -350, 1, value => {
+        spring(BeatSpring, 0, -375, 1, value => {
             RCircle1().position.x(value);
-            RCircle1().position.y(150);
+            RCircle1().position.y(0);
         }),
-        spring(BeatSpring, 0, -225, 1, value => {
+        spring(BeatSpring, 0, -275, 1, value => {
             RCircle2().position.x(value);
             RCircle2().position.y(150);
         }),
-        spring(BeatSpring, 0, -125, 1, value => {
+        spring(BeatSpring, 0, -150, 1, value => {
             RCircle3().position.x(value);
-            RCircle3().position.y(150);
+            RCircle3().position.y(300);
         }),
-        spring(BeatSpring, 0, 50, 1, value => {
+        spring(BeatSpring, 0, -25, 1, value => {
             RCircle4().position.x(value);
             RCircle4().position.y(150);
         }),
-        spring(BeatSpring, 0, 50, 1, value => {
+        spring(BeatSpring, 0, 75, 1, value => {
             RCircle5().position.x(value);
-            RCircle5().position.y(150);
+            RCircle5().position.y(0);
         }),
     )
+
 
     yield* all(
         MCircle1().ripple(1),
