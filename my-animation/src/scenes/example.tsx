@@ -1,5 +1,15 @@
 import {Circle, CubicBezier, Icon, Txt, Layout, Line, makeScene2D} from '@motion-canvas/2d';
-import {all, BeatSpring, createRef, makeRef, Reference, spring, ThreadGenerator, waitFor} from '@motion-canvas/core';
+import {
+    all,
+    any,
+    BeatSpring,
+    createRef,
+    makeRef,
+    Reference,
+    spring,
+    ThreadGenerator,
+    waitFor
+} from '@motion-canvas/core';
 
 export default makeScene2D(function* (view) {
     const TCircle = createRef<Circle>();
@@ -31,21 +41,21 @@ export default makeScene2D(function* (view) {
                 y={0}
                 size={100}
                 fill={'#68abdf'}
-            />
+            ></Circle>
             <Circle
                 ref={MCircle1}
                 x={0}
                 y={0}
                 size={100}
                 fill={'#ffc66d'}
-            />
+            ></Circle>
             <Circle
                 ref={MCircle2}
                 x={0}
                 y={0}
                 size={100}
                 fill={'#ffc66d'}
-            />
+            ></Circle>
 
             <Circle
                 ref={RCircle1}
@@ -53,43 +63,56 @@ export default makeScene2D(function* (view) {
                 y={0}
                 size={100}
                 fill={'#99c47a'}
-            />
+            ></Circle>
             <Circle
                 ref={RCircle2}
                 x={0}
                 y={0}
                 size={100}
                 fill={'#99c47a'}
-            />
+            ></Circle>
             <Circle
                 ref={RCircle3}
                 x={0}
                 y={0}
                 size={100}
                 fill={'#99c47a'}
-            />
+            ></Circle>
             <Circle
                 ref={RCircle4}
                 x={0}
                 y={0}
                 size={100}
                 fill={'#99c47a'}
-            />
+            ></Circle>
             <Circle
                 ref={RCircle5}
                 x={0}
                 y={0}
                 size={100}
                 fill={'#99c47a'}
-            />
+            ></Circle>
         </Layout>
     );
 
+    const Lettering = createRef<Layout>();
+
+    view.add(
+        <Layout opacity={0} ref={Lettering}>
+            <Txt fill={"#000"} fontSize={128}
+                 fontFamily={"Rubik"}>myMDM</Txt>
+        </Layout>
+    )
+
+    yield* waitFor(1.5);
+
     yield* all(
+        // testseries
         spring(BeatSpring, 0, -300, 1, value => {
             TCircle().position.x(value);
             TCircle().position.y(value);
         }),
+        // pool
         spring(BeatSpring, 0, -150, 1, value => {
             PCircle().position.x(value);
             PCircle().position.y(value);
@@ -126,6 +149,15 @@ export default makeScene2D(function* (view) {
             RCircle5().position.x(value);
             RCircle5().position.y(0);
         }),
+
+        any(
+            //lettering
+            spring(BeatSpring, 0, 200, 1, value => {
+                Lettering().position.x(value);
+                Lettering().position.y(-value);
+            }),
+            Lettering().opacity(1, 2)
+        )
     )
 
     const lines: Line[] = [];
@@ -142,6 +174,7 @@ export default makeScene2D(function* (view) {
                       () => PCircle().left().addX(-80),
                       PCircle().left,
                   ]}></Line>
+
             {/*p -> m*/}
             <Line lineWidth={10} ref={makeRef(lines, 1)} stroke={"#333"} startOffset={20} endOffset={20} radius={800}
                   end={0}
@@ -159,6 +192,7 @@ export default makeScene2D(function* (view) {
                       () => MCircle2().top().addX(-40),
                       MCircle2().topLeft,
                   ]}></Line>
+
             {/*m1 -> r1,r2*/}
             <Line lineWidth={10} ref={makeRef(lines, 3)} stroke={"#333"} startOffset={20} endOffset={20} radius={800}
                   end={0}
@@ -225,23 +259,7 @@ export default makeScene2D(function* (view) {
         PCircle().ripple(1),
         TCircle().ripple(1),
     )
-
-
-    // yield* tween(2, value => {
-    //     MCircle().position(
-    //         Vector2.arcLerp(
-    //             new Vector2(-300, 200),
-    //             new Vector2(300, -200),
-    //             easeInOutCubic(value),
-    //         ),
-    //     );
-    // });
-    //
-    // yield* spring(BeatSpring, 300, -300, 1, value => {
-    //     MCircle().position.x(value);
-    //     MCircle().position.y(-value);
-    // });
-
+    yield* waitFor(2.5);
 });
 
 function* flicker(circle: Circle): ThreadGenerator {
