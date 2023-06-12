@@ -1,5 +1,5 @@
-import {Circle, Layout, Line, makeScene2D} from '@motion-canvas/2d';
-import {all, BeatSpring, createRef, Reference, spring, ThreadGenerator} from '@motion-canvas/core';
+import {Circle, CubicBezier, Icon, Txt, Layout, Line, makeScene2D} from '@motion-canvas/2d';
+import {all, BeatSpring, createRef, makeRef, Reference, spring, ThreadGenerator, waitFor} from '@motion-canvas/core';
 
 export default makeScene2D(function* (view) {
     const TCircle = createRef<Circle>();
@@ -14,9 +14,7 @@ export default makeScene2D(function* (view) {
     const RCircle4 = createRef<Circle>();
     const RCircle5 = createRef<Circle>();
 
-
-    const circles = [TCircle, PCircle, MCircle1, MCircle2, RCircle1]
-
+    const circles: Circle[] = [TCircle(), PCircle(), MCircle1(), MCircle2(), RCircle1(), RCircle2(), RCircle3(), RCircle4(), RCircle5()];
 
     view.add(
         <Layout>
@@ -26,7 +24,7 @@ export default makeScene2D(function* (view) {
                 y={0}
                 size={100}
                 fill={'#ff6470'}
-            />
+            ></Circle>
             <Circle
                 ref={PCircle}
                 x={0}
@@ -87,61 +85,6 @@ export default makeScene2D(function* (view) {
         </Layout>
     );
 
-    view.add(
-        <>
-            {/*t -> p*/}
-            <Line lineWidth={10} stroke={"#666"} startOffset={20} endOffset={20} radius={80} points={[
-                TCircle().right,
-                () => TCircle().right().addX(80),
-                () => PCircle().left().addX(-80),
-                PCircle().left,
-            ]}></Line>
-            {/*p -> m*/}
-            <Line lineWidth={10} stroke={"#666"} startOffset={20} endOffset={20} radius={800} points={[
-                PCircle().bottom,
-                () => MCircle1().top().addX(40),
-                MCircle1().topRight,
-            ]}></Line>
-            <Line lineWidth={10} stroke={"#666"} startOffset={20} endOffset={20} radius={800} points={[
-                PCircle().bottom,
-                () => MCircle2().top().addX(-40),
-                MCircle2().topLeft,
-            ]}></Line>
-            {/*m1 -> r1,r2*/}
-            <Line lineWidth={10} stroke={"#666"} startOffset={20} endOffset={20} radius={800} points={[
-                MCircle1().left,
-                RCircle1().right,
-            ]}></Line>
-            <Line lineWidth={10} stroke={"#666"} startOffset={20} endOffset={20} radius={800} points={[
-                MCircle1().bottom,
-                () => MCircle1().bottom().addX(40),
-                () => RCircle2().right().addX(40),
-                RCircle2().right,
-            ]}></Line>
-
-            {/*m2 -> r3,r4,r5*/}
-            <Line lineWidth={10} stroke={"#666"} startOffset={20} endOffset={20} radius={1000} points={[
-                MCircle2().left,
-                () => MCircle2().left().addX(-80),
-                () => RCircle3().top().addX(80),
-                RCircle3().top,
-            ]}></Line>
-            <Line lineWidth={10} stroke={"#666"} startOffset={20} endOffset={20} radius={800} points={[
-                MCircle2().bottom,
-                () => MCircle2().bottom().addX(-40),
-                () => RCircle4().left().addX(-40),
-                RCircle4().left,
-            ]}></Line>
-            <Line lineWidth={10} stroke={"#666"} startOffset={20} endOffset={20} radius={800} points={[
-                MCircle2().right,
-                RCircle5().left,
-            ]}></Line>
-        </>
-    )
-
-
-    // yield* flicker(myCircle())
-
     yield* all(
         spring(BeatSpring, 0, -300, 1, value => {
             TCircle().position.x(value);
@@ -185,6 +128,89 @@ export default makeScene2D(function* (view) {
         }),
     )
 
+    const lines: Line[] = [];
+
+    view.add(
+        <>
+            {/*t -> p*/}
+            <Line lineWidth={10} ref={makeRef(lines, 0)} stroke={"#333"} startOffset={20} endOffset={20} radius={80}
+                  end={0}
+                  opacity={0}
+                  points={[
+                      TCircle().right,
+                      () => TCircle().right().addX(80),
+                      () => PCircle().left().addX(-80),
+                      PCircle().left,
+                  ]}></Line>
+            {/*p -> m*/}
+            <Line lineWidth={10} ref={makeRef(lines, 1)} stroke={"#333"} startOffset={20} endOffset={20} radius={800}
+                  end={0}
+                  opacity={0}
+                  points={[
+                      PCircle().bottom,
+                      () => MCircle1().top().addX(40),
+                      MCircle1().topRight,
+                  ]}></Line>
+            <Line lineWidth={10} ref={makeRef(lines, 2)} stroke={"#333"} startOffset={20} endOffset={20} radius={800}
+                  end={0}
+                  opacity={0}
+                  points={[
+                      PCircle().bottom,
+                      () => MCircle2().top().addX(-40),
+                      MCircle2().topLeft,
+                  ]}></Line>
+            {/*m1 -> r1,r2*/}
+            <Line lineWidth={10} ref={makeRef(lines, 3)} stroke={"#333"} startOffset={20} endOffset={20} radius={800}
+                  end={0}
+                  opacity={0}
+                  points={[
+                      MCircle1().left,
+                      RCircle1().right,
+                  ]}></Line>
+            <Line lineWidth={10} ref={makeRef(lines, 4)} stroke={"#333"} startOffset={20} endOffset={20} radius={800}
+                  end={0} opacity={0} points={[
+                MCircle1().bottom,
+                () => MCircle1().bottom().addX(40),
+                () => RCircle2().right().addX(40),
+                RCircle2().right,
+            ]}></Line>
+
+            {/*m2 -> r3,r4,r5*/}
+            <Line lineWidth={10} ref={makeRef(lines, 5)} stroke={"#333"} startOffset={20} endOffset={20} radius={1000}
+                  end={0}
+                  opacity={0}
+                  points={[
+                      MCircle2().left,
+                      () => MCircle2().left().addX(-80),
+                      () => RCircle3().top().addX(80),
+                      RCircle3().top,
+                  ]}></Line>
+            <Line lineWidth={10} ref={makeRef(lines, 6)} stroke={"#333"} startOffset={20} endOffset={20} radius={800}
+                  end={0}
+                  opacity={0}
+                  points={[
+                      MCircle2().bottom,
+                      () => MCircle2().bottom().addX(-40),
+                      () => RCircle4().left().addX(-40),
+                      RCircle4().left,
+                  ]}></Line>
+            <Line lineWidth={10} ref={makeRef(lines, 7)} stroke={"#333"} startOffset={20} endOffset={20} radius={800}
+                  end={0}
+                  points={[
+                      MCircle2().right,
+                      RCircle5().left,
+                  ]}></Line>
+        </>
+    )
+
+    // Animate them
+    yield* all(
+        ...lines.map(line => line.end(1, 1),),
+        // removes flickering when entering the scene
+        ...lines.map(line => line.opacity(1, 1)),
+    );
+
+    yield* waitFor(0.5);
 
     yield* all(
         MCircle1().ripple(1),
@@ -198,9 +224,8 @@ export default makeScene2D(function* (view) {
 
         PCircle().ripple(1),
         TCircle().ripple(1),
-        // @ts-ignore
-        // circles.forEach(c => c().ripple(1))
     )
+
 
     // yield* tween(2, value => {
     //     MCircle().position(
@@ -226,19 +251,4 @@ function* flicker(circle: Circle): ThreadGenerator {
     yield;
     circle.fill('red');
     yield;
-}
-
-function* moveAndSlide(circles: Reference<Circle>[]): ThreadGenerator {
-    // T-Circle
-    circles[0]().position.x(0, 1).to(-400, 1)
-    circles[0]().position.y(0, 1).to(-400, 1)
-    // P-Circle
-    circles[1]().position.x(0, 1).to(-200, 1)
-    circles[1]().position.y(0, 1).to(-150, 1)
-    // M-Circle
-    circles[2]().position.x(0, 1).to(-200, 1)
-    circles[2]().position.y(0, 1).to(0, 1)
-    // R-Circle
-    circles[3]().position.x(0, 1).to(50, 1)
-    circles[3]().position.y(0, 1).to(50, 1)
 }
